@@ -1,0 +1,73 @@
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load the Titanic dataset into a Pandas DataFrame 
+titanic_df = pd.read_csv('C:/Users/G Sai Prakash/Desktop/TAIRP/Titanic/titanic.csv')
+
+# Handle missing values
+# Impute missing values for numerical features with the mean
+titanic_df['Age'].fillna(titanic_df['Age'].mean(), inplace=True)
+titanic_df['Fare'].fillna(titanic_df['Fare'].mean(), inplace=True)
+
+# Drop rows with any remaining missing values
+titanic_df.dropna(subset=['Age', 'Fare'], inplace=True)
+
+# Select features and target variable
+X = titanic_df[['Pclass', 'Sex', 'Age', 'Fare']]  
+y = titanic_df['Survived']  # Target variable (0 = Not Survived, 1 = Survived)
+
+# Preprocess categorical variables like 'Sex' 
+X = pd.get_dummies(X, columns=['Sex'], drop_first=True)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the Support Vector Machine (SVM) classifier
+clf = SVC(kernel='linear')  
+
+# Train the classifier on the training data
+clf.fit(X_train, y_train)
+
+# Make predictions on the test data
+y_pred = clf.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+
+print(f"Accuracy: {accuracy}")
+print(f"Confusion Matrix:\n{confusion}")
+print(f"Classification Report:\n{report}")
+
+# Age vs. Survived
+plt.figure(figsize=(10, 5))
+sns.histplot(data=titanic_df, x='Age', hue='Survived', bins=20, kde=True)
+plt.title('Age vs. Survived')
+plt.xlabel('Age')
+plt.ylabel('Count')
+plt.legend(labels=['Not Survived', 'Survived'])
+plt.show()
+
+# Class vs. Survived
+plt.figure(figsize=(8, 5))
+sns.countplot(data=titanic_df, x='Pclass', hue='Survived')
+plt.title('Class vs. Survived')
+plt.xlabel('Class')
+plt.ylabel('Count')
+plt.legend(labels=['Not Survived', 'Survived'])
+plt.show()
+
+# Sex vs. Survived
+plt.figure(figsize=(8, 5))
+sns.countplot(data=titanic_df, x='Sex', hue='Survived')
+plt.title('Sex vs. Survived')
+plt.xlabel('Sex')
+plt.ylabel('Count')
+plt.legend(labels=['Not Survived', 'Survived'])
+plt.show()
